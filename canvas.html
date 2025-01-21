@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .card {
+            width: 800px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <textarea id="textInput" placeholder="Write something..."></textarea>
+        <button id="submitBtn">Submit</button>
+    </div>
+    <div class="card">
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const textInput = document.getElementById('textInput');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Set canvas dimensions to match the card size
+        canvas.width = 300;
+        canvas.height = 200;
+
+        // Initialize canvas background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Create a class to handle falling words
+        class Word {
+            constructor(text, x, y) {
+                this.text = text;
+                this.x = x;
+                this.y = y;
+                this.speed = Math.random() * 2 + 1;
+            }
+
+            draw() {
+                ctx.fillStyle = '#000000';
+                ctx.font = '16px Arial';
+                ctx.fillText(this.text, this.x, this.y);
+            }
+
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                }
+            }
+        }
+
+        const words = [];
+        let animationId;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let word of words) {
+                word.update();
+                word.draw();
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const text = textInput.value;
+            if (text.trim()) {
+                const splitWords = text.split(' ');
+                splitWords.forEach((word, index) => {
+                    const x = Math.random() * (canvas.width - 50);
+                    const y = Math.random() * -canvas.height;
+                    words.push(new Word(word, x, y));
+                });
+                if (!animationId) animate();
+                textInput.value = ''; // Clear the textarea
+            }
+        });
+    </script>
+</body>
+</html>
